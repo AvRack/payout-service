@@ -1,0 +1,10 @@
+class PayoutError(Exception):
+    ...
+
+
+class PayoutNotFoundError(PayoutError):
+    ...
+
+
+class GatewayTimeoutError(PayoutError):
+    ...

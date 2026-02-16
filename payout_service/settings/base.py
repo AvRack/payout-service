@@ -24,10 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-zvl*65+y7_5-a!099*0hmbx_@ojpqxje8h10f85y67*%r30jpd')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = ['*']
 
@@ -42,6 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
+    'core',
+    'payouts',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +74,33 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'payout_service.wsgi.application'
 
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'core.api.exception_handler.custom_exception_handler',
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%SZ',
+    'DATE_FORMAT': '%Y-%m-%d',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    'NON_FIELD_ERRORS_KEY': 'non_field_errors',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Payout Service API',
+    'DESCRIPTION': 'Сервис управления заявками на выплаты',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True,
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -138,3 +165,8 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+PAYOUT_PROCESSING_TIMEOUT = 10
+PAYOUT_GATEWAY_DELAY = 5
+PAYOUT_TASK_MAX_RETRIES = 3
+PAYOUT_TASK_RETRY_DELAY = 60

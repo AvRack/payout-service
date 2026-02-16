@@ -30,6 +30,7 @@ services:
       - /app/.venv
       - static_volume:/app/staticfiles
     environment:
+      - ENVIRONMENT=dev
       - DJANGO_SETTINGS_MODULE=payout_service.settings
       - POSTGRES_DB=payout_db
       - POSTGRES_USER=payout_user
@@ -54,6 +55,7 @@ services:
       - .:/app
       - /app/.venv
     environment:
+      - ENVIRONMENT=dev
       - DJANGO_SETTINGS_MODULE=payout_service.settings
       - POSTGRES_DB=payout_db
       - POSTGRES_USER=payout_user
