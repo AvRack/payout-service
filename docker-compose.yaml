@@ -1,0 +1,92 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: payout_db
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=payout_db
+      - POSTGRES_USER=payout_user
+      - POSTGRES_PASSWORD=payout_password
+    ports:
+      - "5433:5432"
+    networks:
+      - payout_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: payout_redis
+    restart: always
+    networks:
+      - payout_network
+
+  app:
+    build: .
+    container_name: payout_web
+    restart: always
+    volumes:
+      - .:/app
+      - /app/.venv
+      - static_volume:/app/staticfiles
+    environment:
+      - DJANGO_SETTINGS_MODULE=payout_service.settings
+      - POSTGRES_DB=payout_db
+      - POSTGRES_USER=payout_user
+      - POSTGRES_PASSWORD=payout_password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DJANGO_DEBUG=True
+    depends_on:
+      - db
+      - redis
+    command: >
+      sh -c "./scripts/migrate.sh && ./scripts/start_server.sh"
+    networks:
+      - payout_network
+
+  worker:
+    build: .
+    container_name: payout_worker
+    restart: always
+    volumes:
+      - .:/app
+      - /app/.venv
+    environment:
+      - DJANGO_SETTINGS_MODULE=payout_service.settings
+      - POSTGRES_DB=payout_db
+      - POSTGRES_USER=payout_user
+      - POSTGRES_PASSWORD=payout_password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DJANGO_DEBUG=True
+    depends_on:
+      - db
+      - redis
+    command: celery -A payout_service worker --loglevel=info
+    networks:
+      - payout_network
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: payout_nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - static_volume:/app/staticfiles:ro
+    depends_on:
+      - app
+    networks:
+      - payout_network
+
+volumes:
+  postgres_data:
+  static_volume:
+
+networks:
+  payout_network:
+    driver: bridge

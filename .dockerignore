@@ -1,0 +1,30 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# IDE и система
+.vscode/
+.idea/
+.DS_Store
