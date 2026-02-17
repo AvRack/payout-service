@@ -1,13 +1,13 @@
 import logging
 from typing import Any
 
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
-from ..models import Payout
-from .serializers import PayoutSerializer
-from ..tasks import process_payout_task
 
+from payouts.api.serializers import PayoutSerializer
+from payouts.models import Payout
+from payouts.tasks import process_payout_task
 
 logger = logging.getLogger(__name__)
 
@@ -15,23 +15,23 @@ logger = logging.getLogger(__name__)
 class PayoutViewSet(viewsets.ModelViewSet):
     queryset = Payout.objects.all()
     serializer_class = PayoutSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
 
     def perform_create(self, serializer: PayoutSerializer) -> None:
         instance = serializer.save()
-        logger.info(f'Payout {instance.id} created. Status: {instance.status}')
+        logger.info("Payout %s created. Status: %s", instance.id, instance.status)
         try:
             process_payout_task.delay(str(instance.id))
-            logger.info(f'Payout {instance.id} sent to Celery worker.')
-        except Exception as exc:
-            logger.error(f'Could not queue Payout {instance.id}: {exc}', exc_info=True)
+            logger.info("Payout %s sent to Celery worker.", instance.id)
+        except Exception:
+            logger.exception("Could not queue Payout %s", instance.id)
 
-    def destroy(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+    def destroy(self, request: Request, *_args: Any, **_kwargs: Any) -> Response:
         instance: Payout = self.get_object()
         payout_id = instance.id
-        logger.info(f'User {request.user} is deleting Payout {payout_id}')
+        logger.info("User %s is deleting Payout %s", request.user, payout_id)
         self.perform_destroy(instance)
         return Response(
-            data={'message': f'Payout {payout_id} successfully deleted'},
-            status=status.HTTP_204_NO_CONTENT
+            data={"message": f"Payout {payout_id} successfully deleted"},
+            status=status.HTTP_204_NO_CONTENT,
         )

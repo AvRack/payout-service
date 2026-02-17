@@ -1,35 +1,88 @@
 [project]
-name = 'payout-service'
-version = '0.1.0'
-readme = 'README.md'
-requires-python = '>=3.10'
+name = "payout-service"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.10"
 
 dependencies = [
-    'celery[redis]>=5.3.0',
-    'django>=4.2.0,<5.1.0',
-    'djangorestframework>=3.14.0',
-    'drf-spectacular>=0.29.0',
-    'gunicorn>=23.0.0',
-    'pillow>=10.0.0',
-    'psycopg[binary]>=3.1.0',
+    "celery[redis]>=5.3.0",
+    "django>=4.2.0,<5.1.0",
+    "djangorestframework>=3.14.0",
+    "drf-spectacular>=0.29.0",
+    "gunicorn>=23.0.0",
+    "pillow>=10.0.0",
+    "psycopg[binary]>=3.1.0",
 ]
 
 [dependency-groups]
 dev = [
-    'factory-boy>=3.3.3',
-    'pytest-cov>=7.0.0',
-    'pytest-django>=4.12.0',
-    'pytest-mock>=3.15.1',
+    "factory-boy>=3.3.3",
+    "pytest-cov>=7.0.0",
+    "pytest-django>=4.12.0",
+    "pytest-mock>=3.15.1",
+    "ruff>=0.15.1",
 ]
 
 [tool.uv]
 package = false
 
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "B",   # flake8-bugbear
+  "Q",   # flake8-quotes
+  "PT",  # flake8-pytest-style
+  "RET", # flake8-return
+  "SIM", # flake8-simplify
+  "C4",  # flake8-comprehensions
+  "PIE", # flake8-pie
+  "RUF", # ruff
+  "PL",  # pylint
+  "UP",  # pyupgrade
+  "C90", # mccabe
+  "COM", # flake8-commas
+  "INP", # flake8-no-pep420
+  "TID", # flake8-tidy-imports
+  "PTH", # flake8-use-pathlib
+  "ERA", # eradicate
+]
+
+ignore = [
+  "B904",
+  "E501",   # Never enforce line length
+  "RET504", # Unnecessary variable assignment before `return` statement
+  "RUF001", # ruff unicode specific rules
+  "RUF002", # ruff unicode specific rules
+  "RUF003", # ruff unicode specific rules
+  "SIM102", # Use a single `if` statement instead of nested `if` statements
+  "RUF012", # Ignore mutable default for Django Meta and FactoryBoy
+  "PLR6301", # DRF ViewSet methods should remain methods (not functions)
+  "COM812", "ISC001", # Conflicts with ruff formatter
+]
+
+unfixable = [
+  "B",   # Avoid trying to fix flake8-bugbear violations.
+  "ERA", # Avoid deleting commented-out code
+]
+
+[tool.ruff.lint.per-file-ignores]
+"manage.py" = ["PLC0415"]
+"payout_service/settings/*.py" = ["F403", "F405"]
+"payout_service/settings/__init__.py" = ["F403", "F405"]
+"**/tests/*.py" = ["S101", "S311", "ARG001", "PLR2004", "PLR0913"]
+
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = 'payout_service.settings'
-python_files = ['tests.py', 'test_*.py', '*_tests.py']
-addopts = '--reuse-db --nomigrations'
+DJANGO_SETTINGS_MODULE = "payout_service.settings"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--reuse-db --nomigrations"
 
 [build-system]
-requires = ['hatchling']
-build-backend = 'hatchling.build'
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -41,6 +41,13 @@ test: ## Запустить тесты приложения (pytest)
 test-cov: ## Запустить тесты с проверкой покрытия кода
 	$(EXEC) pytest --cov=. --cov-report=term-missing
 
+lint: ## Проверить код линтером
+	$(EXEC) ruff check .
+
+format: ## Отформатировать код
+	$(EXEC) ruff format .
+	$(EXEC) ruff check --fix .
+
 worker-logs: ## Посмотреть логи воркера (Celery)
 	$(DC) logs -f worker
 

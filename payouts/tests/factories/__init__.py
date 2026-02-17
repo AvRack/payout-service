@@ -1,5 +1,3 @@
-from .payout import PayoutFactory
+from payouts.tests.factories.payout import PayoutFactory
 
-__all__ = (
-    'PayoutFactory',
-)
+__all__ = ("PayoutFactory",)

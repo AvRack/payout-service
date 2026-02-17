@@ -1,13 +1,12 @@
 import os
 
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "production")
 
-ENVIRONMENT = os.environ.get('ENVIRONMENT', 'production')
 
-
-if ENVIRONMENT == 'production':
-    from .production import *
-elif ENVIRONMENT == 'dev':
+if ENVIRONMENT == "production":
+    from payout_service.settings.production import *
+elif ENVIRONMENT == "dev":
     try:
-        from .local import *
+        from payout_service.settings.local import *
     except ImportError:
-        from .dev import *
+        from payout_service.settings.dev import *
