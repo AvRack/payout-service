@@ -14,57 +14,57 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Payout',
+            name="Payout",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 (
-                    'amount',
+                    "amount",
                     models.DecimalField(
                         decimal_places=2,
                         max_digits=12,
-                        validators=[django.core.validators.MinValueValidator(Decimal('0.01'))],
-                        verbose_name='Сумма выплаты',
+                        validators=[django.core.validators.MinValueValidator(Decimal("0.01"))],
+                        verbose_name="Сумма выплаты",
                     ),
                 ),
                 (
-                    'currency',
+                    "currency",
                     models.CharField(
-                        choices=[('RUB', 'Российский рубль'), ('USD', 'Доллар США'), ('EUR', 'Евро')],
-                        default='RUB',
+                        choices=[("RUB", "Российский рубль"), ("USD", "Доллар США"), ("EUR", "Евро")],
+                        default="RUB",
                         max_length=3,
-                        verbose_name='Валюта',
+                        verbose_name="Валюта",
                     ),
                 ),
                 (
-                    'recipient_details',
+                    "recipient_details",
                     models.JSONField(
                         help_text='Пример: {"card_number": "1234...", "account_id": "408..."}',
-                        verbose_name='Реквизиты получателя',
+                        verbose_name="Реквизиты получателя",
                     ),
                 ),
                 (
-                    'status',
+                    "status",
                     models.CharField(
                         choices=[
-                            ('pending', 'В ожидании'),
-                            ('processing', 'В обработке'),
-                            ('success', 'Выполнена'),
-                            ('failed', 'Ошибка'),
-                            ('canceled', 'Отменена'),
+                            ("pending", "В ожидании"),
+                            ("processing", "В обработке"),
+                            ("success", "Выполнена"),
+                            ("failed", "Ошибка"),
+                            ("canceled", "Отменена"),
                         ],
-                        default='pending',
+                        default="pending",
                         max_length=20,
-                        verbose_name='Статус',
+                        verbose_name="Статус",
                     ),
                 ),
-                ('comment', models.TextField(blank=True, max_length=255, null=True, verbose_name='Комментарий')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
+                ("comment", models.TextField(blank=True, max_length=255, null=True, verbose_name="Комментарий")),
+                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")),
+                ("updated_at", models.DateTimeField(auto_now=True, verbose_name="Дата обновления")),
             ],
             options={
-                'verbose_name': 'Выплата',
-                'verbose_name_plural': 'Выплаты',
-                'ordering': ['-created_at'],
+                "verbose_name": "Выплата",
+                "verbose_name_plural": "Выплаты",
+                "ordering": ["-created_at"],
             },
         ),
     ]
