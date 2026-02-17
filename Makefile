@@ -8,6 +8,21 @@ MANAGE = python manage.py
 help: ## Справка по командам
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+sync: ## Синхронизировать зависимости
+	uv sync --all-extras --all-groups
+	@echo "✅ Зависимости синхронизированы (локально)"
+
+install: sync ## Полная установка проекта и хуков
+	uv run pre-commit install --install-hooks --overwrite
+	@echo "✅ Окружение готово к разработке"
+
+lock-check: ## Проверить актуальность uv.lock
+	@uv lock --locked || (echo "⚠️ uv.lock устарел! Запусти 'make sync'" && exit 1)
+
+# Обновим команду build, чтобы она всегда проверяла lock
+build: lock-check ## Пересобрать Docker образы
+	$(DC) build
+
 up: ## Запустить все сервисы (app, db, redis, worker, nginx)
 	$(DC) up -d
 
@@ -15,9 +30,6 @@ down: ## Остановить и удалить контейнеры
 	$(DC) down
 
 restart: down up ## Перезапустить все сервисы
-
-build: ## Пересобрать образы
-	$(DC) build
 
 migrate: ## Создать и применить миграции
 	$(EXEC) $(MANAGE) makemigrations
