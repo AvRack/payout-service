@@ -1,0 +1,1 @@
+[![codecov](https://codecov.io/gh/AvRack/payout-service/graph/badge.svg?token=I105B7271Z)](https://codecov.io/gh/AvRack/payout-service)
