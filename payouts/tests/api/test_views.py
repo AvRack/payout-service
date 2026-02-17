@@ -62,12 +62,14 @@ def test_create_payout_success(api_client: APIClient, mocker: MockerFixture) -> 
 )
 def test_create_payout_validation_errors(
         api_client: APIClient,
+        mocker: MockerFixture,
         amount: str,
         currency: str,
         expected_field: str,
         expected_code: str
 ) -> None:
     url = reverse('payout-list')
+    mock_task = mocker.patch('payouts.tasks.process_payout_task.delay')
     payload = {
         'amount': amount,
         'currency': currency,
@@ -81,3 +83,5 @@ def test_create_payout_validation_errors(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert (expected_field, expected_code) in error_tuples
+
+    mock_task.assert_not_called()

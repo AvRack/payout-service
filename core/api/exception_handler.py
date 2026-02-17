@@ -31,7 +31,7 @@ def format_drf_errors(response: Response, context: dict[str, Any], exc: Exceptio
 
     elif isinstance(response.data, dict):
         for field, error in response.data.items():
-            pointer = f'/data/attributes/{field}'
+            pointer = f'/data/{field}'
 
             if isinstance(error, dict):
                 errors_list.append(error)
