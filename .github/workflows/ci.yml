@@ -65,7 +65,7 @@ jobs:
           POSTGRES_DB: payout_db
           POSTGRES_USER: payout_user
           POSTGRES_PASSWORD: payout_pass
-          POSTGRES_HOST: localhost
+          DB_HOST: localhost
           POSTGRES_PORT: 5432
           CELERY_BROKER_URL: redis://localhost:6379/0
         run: uv run pytest --cov=. --cov-report=xml
