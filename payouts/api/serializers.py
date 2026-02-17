@@ -21,7 +21,8 @@ class PayoutSerializer(serializers.ModelSerializer):
     )
 
     currency = serializers.ChoiceField(
-        choices=CurrencyChoices.choices, default=CurrencyChoices.RUB,
+        choices=CurrencyChoices.choices,
+        default=CurrencyChoices.RUB,
     )
 
     comment = serializers.CharField(

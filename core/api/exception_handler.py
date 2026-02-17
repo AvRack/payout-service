@@ -23,7 +23,9 @@ def custom_exception_handler(exc: Exception, context: dict[str, Any]) -> Respons
 
 
 def format_drf_errors(
-    response: Response, _context: dict[str, Any], exc: Exception,
+    response: Response,
+    _context: dict[str, Any],
+    exc: Exception,
 ) -> list[dict[str, Any]]:
     errors_list: list[dict[str, Any]] = []
     error_msg_gen = error_generator(response.status_code)
@@ -57,7 +59,10 @@ def format_drf_errors(
                         error_code = getattr(message, "code", "invalid")
                         errors_list.append(
                             error_msg_gen(
-                                message, pointer=pointer, label=field, code=error_code,
+                                message,
+                                pointer=pointer,
+                                label=field,
+                                code=error_code,
                             ),
                         )
             else:
@@ -68,7 +73,8 @@ def format_drf_errors(
 
 def error_generator(status_code: int) -> Callable:
     default_label = settings.REST_FRAMEWORK.get(
-        "NON_FIELD_ERRORS_KEY", "non_field_errors",
+        "NON_FIELD_ERRORS_KEY",
+        "non_field_errors",
     )
 
     def generate_error(
