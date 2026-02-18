@@ -79,3 +79,39 @@ def test_create_payout_validation_errors(
     assert (expected_field, expected_code) in error_tuples
 
     mock_task.assert_not_called()
+
+
+def test_patch_payout_status_success(api_client: APIClient) -> None:
+    payout = PayoutFactory(status=PayoutStatus.PROCESSING)
+    url = reverse("payout-detail", kwargs={"id": payout.id})
+    payload = {"status": PayoutStatus.PENDING}
+
+    response = api_client.patch(url, payload, format="json")
+
+    payout.refresh_from_db()
+    assert response.status_code == status.HTTP_200_OK
+    assert payout.status == PayoutStatus.PENDING
+
+
+def test_patch_payout_status_cannot_change(api_client: APIClient) -> None:
+    payout = PayoutFactory(status=PayoutStatus.SUCCESS)
+    url = reverse("payout-detail", kwargs={"id": payout.id})
+    payload = {"status": PayoutStatus.FAILED}
+
+    response = api_client.patch(url, payload, format="json")
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Cannot change status" in str(response.data)
+
+
+def test_patch_payout_other_fields(api_client: APIClient) -> None:
+    payout = PayoutFactory(currency=CurrencyChoices.USD, status=PayoutStatus.PROCESSING)
+    url = reverse("payout-detail", kwargs={"id": payout.id})
+    payload = {"status": PayoutStatus.PENDING, "currency": CurrencyChoices.RUB}
+
+    response = api_client.patch(url, payload, format="json")
+
+    payout.refresh_from_db()
+    assert response.status_code == status.HTTP_200_OK
+    assert payout.status == PayoutStatus.PENDING
+    assert payout.currency == CurrencyChoices.USD

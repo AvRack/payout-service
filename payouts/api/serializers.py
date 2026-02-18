@@ -2,6 +2,7 @@ import re
 from typing import Any
 
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from payouts.choices import CurrencyChoices, PayoutStatus
 from payouts.constants import FINAL_PAYOUT_STATUSES, MIN_PAYOUT_AMOUNT
@@ -66,8 +67,15 @@ class PayoutSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate(self, data: dict[str, Any]) -> dict[str, Any]:
-        if self.instance and self.instance.status in FINAL_PAYOUT_STATUSES:
-            msg = f"Заявка в статусе {self.instance.status} закрыта для редактирования."
-            raise serializers.ValidationError(msg)
-        return data
+
+class PayoutStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payout
+        fields = ("status",)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        instance: Payout = self.instance
+
+        if instance.status in FINAL_PAYOUT_STATUSES:
+            raise ValidationError(f"Cannot change status. Payout {instance.id} is already '{instance.status}'.")
+        return attrs

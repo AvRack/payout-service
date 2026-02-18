@@ -5,7 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from payouts.api.serializers import PayoutSerializer
+from payouts.api.serializers import PayoutSerializer, PayoutStatusUpdateSerializer
 from payouts.models import Payout
 from payouts.tasks import process_payout_task
 
@@ -15,7 +15,14 @@ logger = logging.getLogger(__name__)
 class PayoutViewSet(viewsets.ModelViewSet):
     queryset = Payout.objects.all()
     serializer_class = PayoutSerializer
+    actions_serializers = {
+        "partial_update": PayoutStatusUpdateSerializer,
+        "update": PayoutStatusUpdateSerializer,
+    }
     lookup_field = "id"
+
+    def get_serializer_class(self):
+        return self.actions_serializers.get(self.action, self.serializer_class)
 
     def perform_create(self, serializer: PayoutSerializer) -> None:
         instance = serializer.save()
@@ -25,6 +32,10 @@ class PayoutViewSet(viewsets.ModelViewSet):
             logger.info("Payout %s sent to Celery worker.", instance.id)
         except Exception:
             logger.exception("Could not queue Payout %s", instance.id)
+
+    def perform_update(self, serializer: PayoutStatusUpdateSerializer):
+        instance = serializer.save()
+        logger.info("Payout %s status updated to: %s", instance.id, instance.status)
 
     def destroy(self, request: Request, *_args: Any, **_kwargs: Any) -> Response:
         instance: Payout = self.get_object()
